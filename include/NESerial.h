@@ -48,6 +48,7 @@ namespace ne
         NESerial(char *DevicePlace);
         ~NESerial();
 
+        // --------------------串口写----------------------
         // 串口发送，一般不直接使用
         int send(NE_8U *buffer, int count);
 
@@ -60,6 +61,14 @@ namespace ne
 
         // 更新数据
         void updateToWriteBuffer(int bufferID, std::vector<std::vector<NE_8U>> data);
+
+        // --------------------串口读----------------------
+        int readOne(NE_8U &message);
+
+        int readFrame(std::vector<NE_8U> &buffer);
+
+        void clearInputBuffer() const;
+        void clearOutputBuffer() const;
 
         // 停止所有线程
         void stopAllThread();
