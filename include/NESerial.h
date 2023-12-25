@@ -23,13 +23,15 @@ namespace ne
     class NESerial {
 
     private:
+
         bool open_ = false;
         bool debugWrite_ = false;
+        bool showWrite_ = false;
         bool threadRun_ = true;
         char * DevicePath_;
         int fd_;
         int init();
-        std::mutex mutSerialWriteBuffers_;
+        static std::mutex mutSerialWriteBuffers_;
         std::vector<std::vector<std::vector<NE_8U>>>buffersGroup_;
         int buffersId_ = 0;
         // 线程模板
@@ -41,6 +43,8 @@ namespace ne
         NE32F2NE8U ne32F2Ne8U;
 
         void debugWrite(); // Use to make program output to shell
+
+        void showWrite();
 
         bool isOpen() const;
 

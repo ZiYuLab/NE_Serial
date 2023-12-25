@@ -17,9 +17,11 @@
 namespace ne
 {
 
+    std::mutex NESerial::mutSerialWriteBuffers_;
     NESerial::NESerial(char *DevicePlace)
     :DevicePath_(DevicePlace)
     {
+
         if (!init())
         {
             open_ = false;
@@ -105,6 +107,8 @@ namespace ne
             else
             {
                 // printf("\n--------");
+                if (showWrite_)
+                    printf("\n  ->");
                 int bytes_written;
                 bytes_written = write(fd_, buffer, count);
                 if (bytes_written != count)
@@ -188,6 +192,11 @@ namespace ne
         debugWrite_ = true;
     }
 
+    void NESerial::showWrite()
+    {
+        showWrite_ = true;
+    }
+
     int NESerial::genWriteThreat(int frequency, NE_16U cmdId, std::vector<std::vector<NE_8U>> buffers, int countEach, int type, int mode)
     {
         if (isOpen())
@@ -222,37 +231,39 @@ namespace ne
 
     void NESerial::modelThreadWriteJudge(int frequency, NE_16U cmdID, std::vector<std::vector<NE_8U>> *buffers, NESerial *thisPtr, int countEach)
     {
+        //printf("\nin");
+        //printf("\nin");
         unsigned long count = 0;
         int i = 0;
 
-        count = buffers->size();
+        // count = buffers->size();
         auto start = std::chrono::high_resolution_clock::now();
 
         while (true)
         {
-            thisPtr->mutSerialWriteBuffers_.lock();
+            mutSerialWriteBuffers_.lock();
             if (!thisPtr->threadRun_)
             {
                 break;
             }
-            thisPtr->mutSerialWriteBuffers_.unlock();
+            mutSerialWriteBuffers_.unlock();
             // thisPtr->mut_.unlock();
 
-            if (count == 0) {
+            if (buffers->size() == 0) {
                 continue;
             }
             else
             {
-                if (i < count) {
+                if (i < buffers->size()) {
 
                     if (std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start).count() > 1000 / frequency)
                     {
-                        thisPtr->mutSerialWriteBuffers_.lock();
+                        NESerial::mutSerialWriteBuffers_.lock();
 
                         thisPtr->send2Judge(cmdID, &(*buffers)[i], countEach);
                         start = std::chrono::high_resolution_clock::now();
 
-                        thisPtr->mutSerialWriteBuffers_.unlock();
+                        NESerial::mutSerialWriteBuffers_.unlock();
                         ++i;
                     }
                 }
@@ -267,13 +278,16 @@ namespace ne
     void NESerial::updateToWriteBuffer(int bufferID, std::vector<std::vector<NE_8U>> data)
     {
         mutSerialWriteBuffers_.lock();
+
         if (buffersGroup_.size() < bufferID - 1)
         {
             printf("\n This Buffer ID is not found!");
             ASSERT(0); // This buffer ID is not found!
         }
+        //while(1);
         buffersGroup_[bufferID - 1] = data;
         mutSerialWriteBuffers_.unlock();
+
     }
 
     void NESerial::stopAllThread()

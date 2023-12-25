@@ -16,6 +16,8 @@ namespace ne
     {
         if (buffers_.size() >= BUFFERS_MAX_LIMIT)
             ASSERT(0); // 数组超限，你是否调用了clearBuffer();
+        else if (buffers_.size() >= robotGroundNum_)
+            buffers_.resize(0);
 
         std::vector<NE_8U> buffer;
 
