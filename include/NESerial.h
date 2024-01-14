@@ -10,7 +10,9 @@
 #define NESERIAL_NESERIAL_H
 
 #include <thread>
-
+#include <vector>
+#include <mutex>
+#include "include/NEInit.h"
 
 namespace ne
 {

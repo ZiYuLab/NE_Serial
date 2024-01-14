@@ -103,6 +103,7 @@ namespace ne
                         printf("0x%0X ", buffer[i]);
                 }
                 printf("\n  %d-bytes \n", count);
+                return count;
             }
             else
             {
@@ -165,7 +166,7 @@ namespace ne
             buffer.push_back(ne16U2Ne8U.ne8uOUT[1]);
             buffer.push_back(ne16U2Ne8U.ne8uOUT[0]);
 
-            send(&buffer[0], buffer.size());
+            return send(&buffer[0], buffer.size());
         }
         else
         {
